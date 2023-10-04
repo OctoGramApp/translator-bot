@@ -1,9 +1,9 @@
-FROM oven/bun:latest
+FROM node:20
 
 COPY package.json ./
 COPY src ./
 COPY . ./
 
-RUN bun install
+RUN npm install
 
 CMD ["npm", "run", "bot"]
