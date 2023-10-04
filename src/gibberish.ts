@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 
 const accepted_chars = 'abcdefghijklmnopqrstuvwxyz ';
 const pos = [...accepted_chars].reduce((acc: { [char: string]: number }, char, idx) => {
@@ -31,8 +32,8 @@ function avg_transition_prob(l: string, log_prob_mat: number[][]): number {
 
 
 export async function loadModel(pathToModel: string) {
-    const file = Bun.file(pathToModel);
-    model = await file.text().then(JSON.parse);
+    const file = readFileSync(pathToModel);
+    model = JSON.parse(file.toString());
 }
 
 export function testString(str: string): boolean {

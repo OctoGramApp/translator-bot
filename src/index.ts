@@ -1,13 +1,21 @@
-import { Bot } from "grammy";
+import { Bot } from 'grammy';
 import { Translator } from "deepl-node";
-import { loadModel, testString } from "./gibberish";
+import { loadModel, testString } from "./gibberish.js";
+import { readFileSync, writeFile, existsSync } from "fs";
+import { config } from "dotenv";
 
-const file = Bun.file("groups.txt");
+config();
+
 let allowed_groups: number[] = [];
-if (file.size != 0) {
-    const text = await file.text();
-    allowed_groups = text.split("\n").map((x) => parseInt(x));
+
+if (existsSync("groups.txt")) {
+    const file = readFileSync("groups.txt");
+    if (file.length != 0) {
+        const text = file.toString();
+        allowed_groups = text.split("\n").map((x) => parseInt(x));
+    }
 }
+
 const bot = new Bot(process.env.TOKEN!);
 const translator = new Translator(process.env.DEEPL!);
 const translated_messages = new Map<string, string>();
@@ -17,23 +25,31 @@ const layout = bot.chatType(["group", "supergroup"])
         const user = await ctx.getAuthor();
         return user.status === "creator" || user.status === "administrator";
     });
-layout.command("allow", (ctx) => {
+layout.command("allow", async (ctx) => {
     if (allowed_groups.includes(ctx.chat.id)) {
-        ctx.reply("This group is already allowed.");
+        await ctx.reply("This group is already allowed.");
         return;
     }
     allowed_groups.push(ctx.chat.id);
-    ctx.reply("This group is now allowed.");
-    Bun.write("groups.txt", allowed_groups.join("\n"));
+    await ctx.reply("This group is now allowed.");
+    writeFile("groups.txt", allowed_groups.join("\n"), (err) => {
+        if (err) {
+            console.error(err);
+        }
+    });
 });
-layout.command("deny", (ctx) => {
+layout.command("deny", async (ctx) => {
     if (!allowed_groups.includes(ctx.chat.id)) {
-        ctx.reply("This group is already denied.");
+        await ctx.reply("This group is already denied.");
         return;
     }
     allowed_groups.splice(allowed_groups.indexOf(ctx.chat.id), 1);
-    ctx.reply("This group is now denied.");
-    Bun.write("groups.txt", allowed_groups.join("\n"));
+    await ctx.reply("This group is now denied.");
+    writeFile("groups.txt", allowed_groups.join("\n"), (err) => {
+        if (err) {
+            console.error(err);
+        }
+    });
 });
 
 
@@ -55,7 +71,7 @@ bot.on("message", async (ctx) => {
         return;
     }
     if (translated_messages.has(message)) {
-        ctx.reply(translated_messages.get(message)!, { reply_to_message_id: ctx.message.message_id });
+        await ctx.reply(translated_messages.get(message)!, { reply_to_message_id: ctx.message.message_id });
         return;
     }
     translator

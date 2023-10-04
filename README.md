@@ -11,13 +11,13 @@ A simple bot to translate messages in a single or multiple telegram groups.
 To install dependencies:
 
 ```bash
-bun install
+npm install
 ```
 
 To run:
 
 ```bash
-TOKEN='BOT_TOKEN_HERE' DEEPL='DEEPL_TOKEN_HERE' bun run bot
+TOKEN='BOT_TOKEN_HERE' DEEPL='DEEPL_TOKEN_HERE' npm run bot
 ```
 
 ### Docker
