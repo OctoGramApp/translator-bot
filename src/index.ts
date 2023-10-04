@@ -10,7 +10,7 @@ if (file.size != 0) {
 }
 const bot = new Bot(process.env.TOKEN!);
 const translator = new Translator(process.env.DEEPL!);
-
+const translated_messages = new Map<string, string>();
 
 const layout = bot.chatType(["group", "supergroup"])
     .filter(async (ctx) => {
@@ -54,6 +54,10 @@ bot.on("message", async (ctx) => {
     if (!testString(message)) {
         return;
     }
+    if (translated_messages.has(message)) {
+        ctx.reply(translated_messages.get(message)!, { reply_to_message_id: ctx.message.message_id });
+        return;
+    }
     translator
         .translateText(message, null, 'en-US')
         .then((result) => {
@@ -62,6 +66,7 @@ bot.on("message", async (ctx) => {
             }
             const toSend = "Translated from " + result.detectedSourceLang + " to en-US" + ":\n" + result.text;
             ctx.reply(toSend, { reply_to_message_id: ctx.message.message_id });
+            translated_messages.set(message, result.text);
         })
         .catch((error) => {
             console.error(error);
