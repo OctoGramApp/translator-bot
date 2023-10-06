@@ -1,0 +1,8 @@
+configuration:
+  allowed_users: []
+  lang_to_translate: en-US
+  gibberish_model: true
+  min_msg_length: 15
+  message: |
+    Translated from %s to %s:
+    %s

@@ -182,3 +182,5 @@ bun.lockb
 
 # Groups file
 groups.txt
+
+package-lock.json
