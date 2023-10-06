@@ -6,4 +6,4 @@ COPY . ./
 
 RUN npm install
 
-CMD ["npm", "run", "bot"]
+CMD ["ts-node-esm", "index.ts"]
